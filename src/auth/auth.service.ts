@@ -9,7 +9,24 @@ export class AuthService {
   signin() {
     return 'signin';
   }
-  signup(dto: AuthDto) {
-    return 'signup';
+  async signup(dto: AuthDto) {
+    //hash password
+    const hash = await argon.hash(dto.password);
+
+    //save user to database
+    const user = await this.prisma.user.create({
+      data: {
+        email: dto.email,
+        hash,
+      },
+      // select: {
+      //   id: true,
+      //   email: true,
+      //   createdAt: true,
+      // },
+    });
+
+    delete user.hash;
+    return user;
   }
 }
